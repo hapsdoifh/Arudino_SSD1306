@@ -46,7 +46,9 @@ void setup() {
     0xAF,
     NULL,
   };
-
+    Wire.setClock(100000);
+    Wire.begin(9);
+    Wire.setClock(100000);
   Wire.beginTransmission(0x3C);
   Wire.write(0x00);
   for (int cmd_cnt{ 0 }; cmd_cnt < sizeof(command_list) / sizeof(int); cmd_cnt += 3) {
@@ -88,8 +90,12 @@ void setup() {
   // Wire.endTransmission();
       // TWSR |= bit(TWPS0)
     delay(1000);
-    DrawRegMapRect(50,0,100,30);
-    WriteRegMap();
+    for(int i = 0; i<16; i++){
+        DrawRegMapRect(i,i,127-i,31-i);
+        WriteRegMap();
+    }
+    // DrawRegMapRect(0,0,127,31);
+    // WriteRegMap();
   // DrawRect(50,10,100,30);
 }
 
@@ -146,16 +152,16 @@ void SetRegMap(int x, int y){
 }
 
 void DrawRegMapRect(int StartX, int StartY, int EndX, int EndY) {
-    for (int i = StartX; i < EndX; i++) {
+    for (int i = StartX; i <= EndX; i++) {
         SetRegMap(i, StartY);
     }
-    for (int i = StartX; i < EndX; i++) {
+    for (int i = StartX; i <= EndX; i++) {
         SetRegMap(i, EndY);
     }
-    for (int i = StartY; i < EndY; i++) {
+    for (int i = StartY; i <= EndY; i++) {
         SetRegMap(StartX, i);
     }
-    for (int i = StartY; i < EndY; i++) {
+    for (int i = StartY; i <= EndY; i++) {
         SetRegMap(EndX, i);
     }
 }
@@ -207,7 +213,7 @@ void DrawRect(int StartX, int StartY, int EndX, int EndY) {
     WritePixel(StartX, i);
   }
   for (int i = StartY; i < EndY; i++) {
-    WritePixel(EndX, i);
+    3WritePixel(EndX, i);
   }
 }
 
