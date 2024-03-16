@@ -213,7 +213,7 @@ void DrawRect(int StartX, int StartY, int EndX, int EndY) {
     WritePixel(StartX, i);
   }
   for (int i = StartY; i < EndY; i++) {
-    3WritePixel(EndX, i);
+    WritePixel(EndX, i);
   }
 }
 
