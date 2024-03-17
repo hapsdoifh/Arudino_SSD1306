@@ -1,0 +1,6 @@
+{
+    "port": "COM6",
+    "configuration": "cpu=atmega328old",
+    "board": "arduino:avr:nano",
+    "sketch": "SSD1306_Driver_Tester\\SSD1306_Driver_Tester.ino"
+}
