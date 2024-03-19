@@ -9,4 +9,5 @@ void DisplayStart(int DeviceAddr, int SerialSpeed = 200000);
 void ClearScreen();
 void WriteRegLine(int StartX, int StartY, int EndX, int EndY, int thickness = 1);
 void SetRegMap(int x, int y, int thickness = 1);
+void DrawRegEllipse(int StartX, int StartY, int EndX, int EndY, int thickness = 1);
 #endif

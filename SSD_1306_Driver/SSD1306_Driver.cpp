@@ -1,6 +1,7 @@
 
 #include <SSD1306_Driver.h>
 #include <Wire.h>
+#include <math.h>
 #define max(a,b) ((a)>(b)?(a):(b))
 #define min(a,b) ((a)<(b)?(a):(b))
 #define signed_max(a,b) (abs(a) > abs(b) ? a : b)
@@ -72,28 +73,6 @@ int BitMapping(int FourBitIn){
     return EightBitOut; 
 }
 
-void WriteRegLine(int StartX, int StartY, int EndX, int EndY, int thickness = 1){
-    int Cycles = signed_max((EndX - StartX),(EndY - StartY)), CycleSign = 1;
-    float Slope = float((EndY-StartY))/(EndX - StartX);
-    int StartMapping[] = {StartX, StartY};
-    int CoordMapping[] = {0,0}, default_mapping = 0;
-    if(Cycles < 0){
-        CycleSign = -1;
-        Cycles *= CycleSign;
-    }
-    if (abs(EndY - StartY) >= abs(EndX - StartX)){ //if line is longer vertically rise > run
-        Slope = 1/Slope;
-        default_mapping = 1;
-    }
-    for(int i = 0; i <= Cycles; i++){
-        CoordMapping[default_mapping] = int(StartMapping[default_mapping] + i*CycleSign); //default: CoordMapping[x,y] modified:CoordMapping[y,x]
-        CoordMapping[1 - default_mapping] = int(StartMapping[1-default_mapping] + i*CycleSign*Slope);
-
-        if(CoordMapping[0] >= 0 && CoordMapping[0] < 128 && CoordMapping[1] >= 0 && CoordMapping[1] < 32)
-        SetRegMap(CoordMapping[0], CoordMapping[1], thickness);
-    }
-}
-
 void WriteRegMapDepricated() {
     //proof of concept, slow as it sets the memory address every time
     for (int row = 0; row < 8; row++) {
@@ -116,11 +95,20 @@ void WriteRegMap() {
 }
 
 void SetRegMap(int x, int y, int thickness = 1){
-    int row = y / 4;
-    int col = x;
-    int data = 0x01 << (y % 4);
-    data = BitMapping(data);
-    register_map[row*128 + col] |= data;
+    if(thickness == 1){
+        int row = y / 4;
+        int col = x;
+        int data = 0x01 << (y % 4);
+        data = BitMapping(data);
+        register_map[row*128 + col] |= data;
+    }
+    else{
+        for(int i = 0; i < thickness; i++){
+            for(int j = 0; j < thickness; j++){
+                SetRegMap(x+i, y+j, 1);
+            }
+        }   
+    }
 }
 
 void DrawRegMapRect(int StartX, int StartY, int EndX, int EndY) {
@@ -187,5 +175,55 @@ void DrawRect(int StartX, int StartY, int EndX, int EndY) {
     }
     for (int i = StartY; i < EndY; i++) {
         WritePixel(EndX, i);
+    }
+}
+
+void WriteRegLine(int StartX, int StartY, int EndX, int EndY, int thickness = 1){
+    int Cycles = signed_max((EndX - StartX),(EndY - StartY)), CycleSign = 1;
+    float Slope = float((EndY-StartY))/(EndX - StartX);
+    int StartMapping[] = {StartX, StartY};
+    int CoordMapping[] = {0,0}, default_mapping = 0;
+    if(Cycles < 0){
+        CycleSign = -1;
+        Cycles *= CycleSign;
+    }
+    if (abs(EndY - StartY) >= abs(EndX - StartX)){ //if line is longer vertically rise > run
+        Slope = 1/Slope;
+        default_mapping = 1;
+    }
+    for(int i = 0; i <= Cycles; i++){
+        CoordMapping[default_mapping] = int(StartMapping[default_mapping] + i*CycleSign); //default: CoordMapping[x,y] modified:CoordMapping[y,x]
+        CoordMapping[1 - default_mapping] = int(StartMapping[1-default_mapping] + i*CycleSign*Slope);
+
+        if(CoordMapping[0] >= 0 && CoordMapping[0] < 128 && CoordMapping[1] >= 0 && CoordMapping[1] < 32)
+        SetRegMap(CoordMapping[0], CoordMapping[1], thickness);
+    }
+}
+
+void DrawRegEllipse(int StartX, int StartY, int EndX, int EndY, int thickness = 1){
+    int Cycles = signed_max((EndX - StartX),(EndY - StartY)), CycleSign = 1;
+    int Center[] = {(StartX+EndX)/2,(StartY+EndY)/2};
+    int VertexA = abs(EndX-StartX)/2, VertexB = abs(EndY-StartY)/2;
+    int CoordMapping[] = {0,0}, default_mapping = 0;
+    if (abs(EndY - StartY) >= abs(EndX - StartX)){ //if line is longer vertically rise > run
+        default_mapping = 1;
+    }
+    for(int i = 0; i <= Cycles; i++){
+        CoordMapping[default_mapping] = int(i*CycleSign); //default: CoordMapping[x,y] modified:CoordMapping[y,x]
+        int X = CoordMapping[default_mapping];
+        CoordMapping[1 - default_mapping] = sqrt(((1.0 - float( pow(X-VertexA,2)) /(  float(pow(VertexA,2)) ))) * pow(float(VertexB),2));
+
+        for(int j = 1; j > -2; j-=2){
+            CoordMapping[1 - default_mapping] *= j;
+            int XCoord = CoordMapping[0];
+            int YCoord = Center[1] + CoordMapping[1];
+            if(XCoord >= 0 && XCoord < 128 && YCoord >= 0 && YCoord < 32)
+            SetRegMap(XCoord, YCoord, thickness);
+            if(i < 1 || i > Cycles-1){
+                SetRegMap(XCoord, YCoord+j, thickness);
+                SetRegMap(XCoord, YCoord+2*j, thickness);
+                SetRegMap(XCoord, YCoord+3*j, thickness);
+            }
+        }
     }
 }

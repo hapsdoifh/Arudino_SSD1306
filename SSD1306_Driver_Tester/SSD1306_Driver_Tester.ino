@@ -17,30 +17,34 @@ void setup() {
     //     WriteRegMap();
     // }
 
-    for(int i = 0; i < 128; i+=10){
-        WriteRegLine(0,0,i,31);
-        if(i%20 == 0)
-        WriteRegMap();
-    }
-    for(int i = 0; i < 128; i+=10){
-        WriteRegLine(127-i,31,127,0);
-        if(i%20 == 0)
-        WriteRegMap();
-    }
-    WriteRegMap();
-    // ClearScreen();
-    WriteRegMap();
-    for(int i = 0; i < 128; i+=10){
-        WriteRegLine(0,31,i,0);
-        if(i%20 == 0)
-        WriteRegMap();
-    }
-    WriteRegMap();
-    for(int i = 0; i < 128; i+=10){
-        WriteRegLine(127,31,127-i,0);
-        if(i%20 == 0)
-        WriteRegMap();
-    }
+    // for(int i = 0; i < 128; i+=10){
+    //     WriteRegLine(0,0,i,31);
+    //     if(i%20 == 0)
+    //     WriteRegMap();
+    // }
+    // for(int i = 0; i < 128; i+=10){
+    //     WriteRegLine(127-i,31,127,0);
+    //     if(i%20 == 0)
+    //     WriteRegMap();
+    // }
+    // WriteRegMap();
+    // // ClearScreen();
+    // WriteRegMap();
+    // for(int i = 0; i < 128; i+=10){
+    //     WriteRegLine(0,31,i,0);
+    //     if(i%20 == 0)
+    //     WriteRegMap();
+    // }
+    // WriteRegMap();
+    // for(int i = 0; i < 128; i+=10){
+    //     WriteRegLine(127,31,127-i,0);
+    //     if(i%20 == 0)
+    //     WriteRegMap();
+    // }
+    // WriteRegMap();
+
+    ClearScreen();
+    DrawRegEllipse(10,0,100,30,1);
     WriteRegMap();
 }
 
